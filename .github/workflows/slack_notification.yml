@@ -35,5 +35,5 @@ jobs:
       - name: Send message to Slack
         run: |
           curl -X POST -H 'Content-Type: application/json' \
-            -d "{\"text\": ${{ steps.get-event-details.outputs.message }}}" \
+            -d "${{ steps.get-event-details.outputs.message }}" \
             ${{ secrets.SLACK_WEBHOOK_URL }}
