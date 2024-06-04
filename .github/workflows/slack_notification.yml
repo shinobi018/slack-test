@@ -1,17 +1,26 @@
 name: Slack Notification
 
 on:
-  push: {}  # This triggers on any push event
-  pull_request: {}  # This triggers on any pull request event
-  # You can add triggers for other events like 'deployment_status' here
+  push: {}
+  pull_request: {}
 
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3  # Checkout the repository code
+      - uses: actions/checkout@v3
+      - name: Get event details
+        run: |
+          event_type=${{ github.event_name }}
+          if [[ ${event_type} == "push" ]]; then
+            message="There is a new push to the ${repository} repository on branch *${github.event.ref}*"
+          else
+            message="New pull request opened in ${repository}: *${github.event.pull_request.title}*"
+            message+="\nOpened by: *${github.event.pull_request.user.login}*"
+          fi
+          echo "::set-output name=message::$message"
       - name: Send message to Slack
         run: |
           curl -X POST -H 'Content-Type: application/json' \
-            -d "{\"text\": \"There has been an update to the ${repository} repository on GitHub!\"}" \
+            -d "{\"text\": ${{ steps.get-event-details.outputs.message }}}" \
             ${{ secrets.SLACK_WEBHOOK_URL }}
