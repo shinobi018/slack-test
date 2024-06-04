@@ -13,12 +13,25 @@ jobs:
         run: |
           event_type=${{ github.event_name }}
           if [[ ${event_type} == "push" ]]; then
-            message="There is a new push to the ${repository} repository on branch *${github.event.ref}*"
+            commit_url="${{ github.event.head_commit.url }}"
           else
-            message="New pull request opened in ${repository}: *${github.event.pull_request.title}*"
-            message+="\nOpened by: *${github.event.pull_request.user.login}*"
+            commit_url="${{ github.event.pull_request.html_url }}"
           fi
+          message="
+          {
+            \"text\": \"GitHub Action build result: ${{ job.status }}\n${commit_url}\",
+            \"blocks\": [
+              {
+                \"type\": \"section\",
+                \"text\": {
+                  \"type\": \"mrkdwn\",
+                  \"text\": \"GitHub Action build result: ${{ job.status }}\n${commit_url}\"
+                }
+              }
+            ]
+          }"
           echo "::set-output name=message::$message"
+
       - name: Send message to Slack
         run: |
           curl -X POST -H 'Content-Type: application/json' \
