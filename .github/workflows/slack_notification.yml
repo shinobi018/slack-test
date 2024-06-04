@@ -10,10 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3  # Checkout the repository code
-      - name: Get Slack webhook URL  # Retrieve the secret stored webhook URL
-        uses: actions/secrets@v1
-        with:
-          secrets: SLACK_WEBHOOK_URL
       - name: Send message to Slack
         run: |
           curl -X POST -H 'Content-Type: application/json' \
