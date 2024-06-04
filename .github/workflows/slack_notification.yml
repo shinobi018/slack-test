@@ -1,0 +1,21 @@
+name: Slack Notification
+
+on:
+  push: {}  # This triggers on any push event
+  pull_request: {}  # This triggers on any pull request event
+  # You can add triggers for other events like 'deployment_status' here
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3  # Checkout the repository code
+      - name: Get Slack webhook URL  # Retrieve the secret stored webhook URL
+        uses: actions/secrets@v1
+        with:
+          secrets: SLACK_WEBHOOK_URL
+      - name: Send message to Slack
+        run: |
+          curl -X POST -H 'Content-Type: application/json' \
+            -d "{\"text\": \"There has been an update to the ${repository} repository on GitHub!\"}" \
+            ${{ secrets.SLACK_WEBHOOK_URL }}
